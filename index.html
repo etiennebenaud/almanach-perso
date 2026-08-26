@@ -38,6 +38,12 @@
     <div class="hero-auteur" id="citation-motiv-auteur"></div>
   </div>
 
+  <!-- Marchés -->
+  <div class="carte carte-marches">
+    <div class="carte-eyebrow">📈 Marchés</div>
+    <div id="marches-liste"></div>
+  </div>
+
   <!-- Citation bien-être -->
   <div class="carte carte-bien-etre">
     <div class="carte-eyebrow">🌿 Bien-être</div>
@@ -55,9 +61,9 @@
   <div id="zone-intention"></div>
 
   <!-- Réveil -->
-  <div class="carte">
+  <div class="carte" id="carte-reveil">
     <div class="routine-header-flex">
-      <span class="routine-titre">☀️ Réveil</span>
+      <span class="routine-titre routine-titre-clic" onclick="ouvrirMotivation('reveil')">☀️ Réveil</span>
       <div class="routine-header-droite">
         <span class="mois-badge" id="mois-badge-reveil">Mois 1</span>
         <button class="modifier-lien" onclick="ouvrirEditionRoutine('reveil')">Modifier</button>
@@ -85,9 +91,9 @@
   </div>
 
   <!-- Soir -->
-  <div class="carte">
+  <div class="carte" id="carte-soir">
     <div class="routine-header-flex">
-      <span class="routine-titre">🌙 Soir</span>
+      <span class="routine-titre routine-titre-clic" onclick="ouvrirMotivation('soir')">🌙 Soir</span>
       <div class="routine-header-droite">
         <span class="mois-badge" id="mois-badge-soir">Mois 1</span>
         <button class="modifier-lien" onclick="ouvrirEditionRoutine('soir')">Modifier</button>
@@ -100,12 +106,6 @@
       <ul id="liste-abdos-soir"></ul>
     </div>
     <button class="btn-fait" id="btn-fait-soir" onclick="toggleFait('soir')">Marquer comme fait</button>
-  </div>
-
-  <!-- Marchés -->
-  <div class="carte carte-marches">
-    <div class="carte-eyebrow">📈 Marchés</div>
-    <div id="marches-liste"></div>
   </div>
 
   <div class="pied">Almanach — mis à jour automatiquement</div>
@@ -200,6 +200,17 @@
     <div class="modal-actions">
       <button class="btn-secondaire" onclick="fermerModalEdition()">Annuler</button>
       <button class="btn-primaire" onclick="sauverEditionRoutine()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL : MOTIVATION DU JOUR ═══════════════ -->
+<div class="modal-overlay" id="modal-motivation" style="display:none">
+  <div class="modal-boite">
+    <div class="modal-titre" id="motivation-titre">Motivation</div>
+    <div id="motivation-contenu"></div>
+    <div class="modal-actions">
+      <button class="btn-primaire" style="flex:none;width:100%" onclick="fermerMotivation()">Fermer</button>
     </div>
   </div>
 </div>
