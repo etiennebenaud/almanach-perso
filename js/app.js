@@ -212,13 +212,28 @@ function afficherCitations() {
 }
 
 // ── Calcul du mois de progression ───────────────────────────
-function moisProgressionActuel() {
+// Calcule le palier automatique (mois 1/2/3) sans tenir compte d'un override
+function palierAutomatique() {
   const debut = new Date(ETAT.dateDebutProgramme);
   const maintenant = new Date();
   const moisEcoules = (maintenant.getFullYear() - debut.getFullYear()) * 12
                      + (maintenant.getMonth() - debut.getMonth()) + 1;
   const palier = Math.min(Math.max(moisEcoules, 1), CONFIG.paliersProgression.length);
   return CONFIG.paliersProgression.find(p => p.mois === palier) || CONFIG.paliersProgression[0];
+}
+
+// Ancien nom conservé pour compatibilité (utilisé par le chrono par défaut)
+function moisProgressionActuel() { return palierAutomatique(); }
+
+// Palier effectif pour une routine donnée : l'override manuel s'il existe,
+// sinon la progression automatique par mois.
+function palierPourRoutine(cle) {
+  const champOverride = cle === 'reveil' ? 'overrideReveil' : 'overrideSoir';
+  const override = ETAT[champOverride];
+  if (override && override.pompes != null && override.gainageSec != null) {
+    return { mois: null, pompes: override.pompes, gainageSec: override.gainageSec, manuel: true };
+  }
+  return { ...palierAutomatique(), manuel: false };
 }
 
 function formatGainage(sec) {
@@ -228,8 +243,8 @@ function formatGainage(sec) {
 
 // ── Réveil / Soir ────────────────────────────────────────────
 function afficherRoutine(cle) {
-  const palier = moisProgressionActuel();
-  document.getElementById(`mois-badge-${cle}`).textContent = `Mois ${palier.mois}`;
+  const palier = palierPourRoutine(cle);
+  document.getElementById(`mois-badge-${cle}`).textContent = palier.manuel ? '✏️ Manuel' : `Mois ${palier.mois}`;
 
   const listePrincipale = document.getElementById(`liste-${cle}-principal`);
   listePrincipale.innerHTML = `
@@ -261,8 +276,16 @@ let ciblerEditionCourante = null;
 function ouvrirEditionRoutine(cle) {
   ciblerEditionCourante = cle;
   document.getElementById('modal-edition-titre').textContent =
-    cle === 'reveil' ? 'Modifier le réveil musculaire' : 'Modifier le circuit abdos du soir';
-  document.querySelector('#modal-edition .modal-note').textContent = 'Une ligne par exercice.';
+    cle === 'reveil' ? 'Modifier le réveil' : 'Modifier le soir';
+  document.querySelector('#modal-edition .modal-note').textContent = 'Une ligne par exercice complémentaire.';
+
+  // Champs pompes / gainage (override manuel)
+  document.getElementById('zone-override-pompes').style.display = 'block';
+  const palier = palierPourRoutine(cle);
+  document.getElementById('override-pompes').value = palier.pompes;
+  document.getElementById('override-gainage').value = palier.gainageSec;
+  document.getElementById('btn-reset-auto').style.display = palier.manuel ? 'block' : 'none';
+
   const champ = cle === 'reveil' ? 'reveilMusculaire' : 'circuitAbdosSoir';
   document.getElementById('modal-edition-texte').value = ETAT[champ].join('\n');
   document.getElementById('modal-edition').style.display = 'flex';
@@ -273,6 +296,7 @@ function ouvrirEditionPetitDej() {
   ciblerEditionCourante = 'petitdej-' + jourKey;
   document.getElementById('modal-edition-titre').textContent = `Petit-déjeuner du ${JOURS_AFFICHAGE[new Date().getDay()].toLowerCase()}`;
   document.querySelector('#modal-edition .modal-note').textContent = '';
+  document.getElementById('zone-override-pompes').style.display = 'none';
   document.getElementById('modal-edition-texte').value = ETAT.petitsDejeuners[jourKey] || '';
   document.getElementById('modal-edition').style.display = 'flex';
 }
@@ -287,12 +311,34 @@ async function sauverEditionRoutine() {
     fermerModalEdition();
     return;
   }
+
+  const cle = ciblerEditionCourante;
   const texte = document.getElementById('modal-edition-texte').value;
   const lignes = texte.split('\n').map(l => l.trim()).filter(Boolean);
-  const champ = ciblerEditionCourante === 'reveil' ? 'reveilMusculaire' : 'circuitAbdosSoir';
-  await sauverEtat({ [champ]: lignes });
-  afficherRoutine(ciblerEditionCourante);
+  const champListe = cle === 'reveil' ? 'reveilMusculaire' : 'circuitAbdosSoir';
+
+  // Override pompes/gainage : dès que la fenêtre est enregistrée, la valeur
+  // affichée devient la référence manuelle (fige la progression automatique).
+  const pompes = parseInt(document.getElementById('override-pompes').value, 10);
+  const gainageSec = parseInt(document.getElementById('override-gainage').value, 10);
+  const champOverride = cle === 'reveil' ? 'overrideReveil' : 'overrideSoir';
+
+  await sauverEtat({
+    [champListe]: lignes,
+    [champOverride]: { pompes, gainageSec },
+  });
+  afficherRoutine(cle);
   fermerModalEdition();
+}
+
+async function reinitialiserProgressionAuto() {
+  const cle = ciblerEditionCourante;
+  const champOverride = cle === 'reveil' ? 'overrideReveil' : 'overrideSoir';
+  await sauverEtat({ [champOverride]: null });
+  const palier = palierAutomatique();
+  document.getElementById('override-pompes').value = palier.pompes;
+  document.getElementById('override-gainage').value = palier.gainageSec;
+  document.getElementById('btn-reset-auto').style.display = 'none';
 }
 
 function fermerModalEdition() {
@@ -491,9 +537,10 @@ async function essayerYahoo(symbole) {
   if (!meta) throw new Error('Données Yahoo vides');
   return { prix: meta.regularMarketPrice, cloturePrec: meta.previousClose || meta.chartPreviousClose };
 }
-async function essayerTwelveData(symboleTwelveData) {
+async function essayerTwelveData(symboleTwelveData, exchangeTwelveData) {
   if (!CONFIG.twelveDataApiKey) throw new Error('Pas de clé Twelve Data');
-  const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symboleTwelveData)}&apikey=${CONFIG.twelveDataApiKey}`;
+  let url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symboleTwelveData)}&apikey=${CONFIG.twelveDataApiKey}`;
+  if (exchangeTwelveData) url += `&exchange=${encodeURIComponent(exchangeTwelveData)}`;
   const r = await fetch(url);
   if (!r.ok) throw new Error('HTTP ' + r.status);
   const data = await r.json();
@@ -505,7 +552,7 @@ async function chargerUnMarche(marche) {
   let resultat = null;
   try { resultat = await essayerYahoo(marche.symbole); }
   catch (e) {
-    try { resultat = await essayerTwelveData(marche.symboleTwelveData); }
+    try { resultat = await essayerTwelveData(marche.symboleTwelveData, marche.exchangeTwelveData); }
     catch (e2) { console.warn(`Marché ${marche.nom} indisponible`, e, e2); }
   }
   if (!resultat || !resultat.prix || !resultat.cloturePrec) {
