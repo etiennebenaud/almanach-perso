@@ -457,3 +457,35 @@ a:focus-visible, button:focus-visible {
   padding: 6px 10px; border-radius: 8px; cursor: pointer;
   font-family: 'Inter', sans-serif;
 }
+
+/* ── Titre Réveil/Soir cliquable (ouvre la motivation du jour) ── */
+.routine-titre-clic { cursor: pointer; }
+.routine-titre-clic:active { opacity: 0.6; }
+
+/* ── Contenu du modal Motivation ─────────────────────────────── */
+.motivation-video { position: relative; border-radius: 10px; overflow: hidden; margin-bottom: 4px; }
+.motivation-video img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+.motivation-video .play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(30,36,48,0.25); }
+.motivation-citation {
+  font-family: 'Fraunces', serif; font-style: italic; font-size: 19px;
+  line-height: 1.4; color: var(--ink); text-align: center; padding: 10px 4px;
+}
+.motivation-auteur { text-align: center; font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+.motivation-illustration { display: flex; justify-content: center; padding: 10px 0; }
+.motivation-fait {
+  font-size: 14.5px; line-height: 1.6; color: var(--ink); text-align: center; padding: 10px 4px;
+}
+
+/* ── Animation CSS "pompe" (pas de GIF externe) ─────────────── */
+.anim-pompe { display: flex; justify-content: center; padding: 20px 0; }
+.anim-pompe-bonhomme { font-size: 56px; animation: pompeMouvement 1.1s ease-in-out infinite; }
+@keyframes pompeMouvement {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(8px) rotate(-3deg); }
+}
+
+/* ── Chrono : message final encourageant ─────────────────────── */
+.chrono-message-fin {
+  font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600;
+  color: var(--moss); text-align: center; line-height: 1.4;
+}
