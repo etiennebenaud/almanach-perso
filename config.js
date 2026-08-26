@@ -11,7 +11,7 @@ const CONFIG = {
   nomApp: "Almanach",
 
   // ── Marchés financiers ──────────────────────────────────────
-  twelveDataApiKey: "",  // https://twelvedata.com/ → compte gratuit
+  twelveDataApiKey: "7a29265938c34c17967caa52a4825ff1",  // https://twelvedata.com/ → compte gratuit
   marches: [
     { symbole: "^FCHI", symboleTwelveData: "FCHI", nom: "CAC 40",  devise: "€" },
     { symbole: "^GSPC", symboleTwelveData: "SPX",  nom: "S&P 500", devise: "$" },
