@@ -45,7 +45,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   afficherIntentionDuJour();
   chargerAnecdote();
   chargerMarches();
+  scrollSelonHeure();
 });
+
+// ── Ouverture par défaut : en haut le matin, sur "Soir" le soir ──
+function scrollSelonHeure() {
+  const heure = new Date().getHours();
+  if (heure >= 18) {
+    setTimeout(() => {
+      const cible = document.getElementById('carte-soir');
+      if (cible) cible.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
+}
 
 // ── Chargement / initialisation Firestore ───────────────────
 async function chargerEtatDepuisFirestore() {
@@ -717,9 +729,32 @@ async function afficherCalendrierMensuel() {
 // =============================================================
 // CHRONO GAINAGE
 // =============================================================
+const MESSAGES_FIN_CHRONO = [
+  "Allez, maintenant les pompes ! 💪 Bravo pour le gainage.",
+  "Beau gainage ! Direction les pompes, vous gérez.",
+  "C'est fait ! Encore un effort avec les pompes et la séance est bouclée.",
+  "Excellent gainage. Aux pompes maintenant, vous êtes lancé !",
+  "Bravo, le plus dur est fait. Les pompes vont être une formalité.",
+];
+
+let wakeLockActif = null;
+
+async function demanderWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLockActif = await navigator.wakeLock.request('screen');
+    }
+  } catch (e) { console.warn('Wake Lock indisponible', e); }
+}
+function relacherWakeLock() {
+  if (wakeLockActif) { wakeLockActif.release().catch(()=>{}); wakeLockActif = null; }
+}
+
 function ouvrirChrono(secondes) {
   ETAT.chronoSecondesRestantes = secondes || moisProgressionActuel().gainageSec;
   afficherChrono();
+  document.getElementById('chrono-affichage').classList.remove('chrono-message-fin');
+  document.getElementById('btn-chrono-demarrer').textContent = '▶️ Démarrer';
   document.getElementById('modal-chrono').style.display = 'flex';
 }
 function afficherChrono() {
@@ -733,16 +768,23 @@ function toggleChrono() {
     clearInterval(ETAT.chronoInterval);
     ETAT.chronoInterval = null;
     btn.textContent = '▶️ Reprendre';
+    relacherWakeLock();
   } else {
     btn.textContent = '⏸️ Pause';
+    demanderWakeLock();
     ETAT.chronoInterval = setInterval(() => {
       ETAT.chronoSecondesRestantes--;
       afficherChrono();
       if (ETAT.chronoSecondesRestantes <= 0) {
         clearInterval(ETAT.chronoInterval);
         ETAT.chronoInterval = null;
+        relacherWakeLock();
         if (navigator.vibrate) navigator.vibrate([200,100,200]);
-        document.getElementById('chrono-affichage').textContent = '✓ Terminé !';
+        const msg = MESSAGES_FIN_CHRONO[Math.floor(Math.random() * MESSAGES_FIN_CHRONO.length)];
+        const affichage = document.getElementById('chrono-affichage');
+        affichage.textContent = msg;
+        affichage.classList.add('chrono-message-fin');
+        btn.textContent = '✓ Terminé';
       }
     }, 1000);
   }
@@ -750,5 +792,72 @@ function toggleChrono() {
 function fermerChrono() {
   if (ETAT.chronoInterval) clearInterval(ETAT.chronoInterval);
   ETAT.chronoInterval = null;
+  relacherWakeLock();
   document.getElementById('modal-chrono').style.display = 'none';
+}
+
+// Ré-active le Wake Lock si l'onglet redevient visible pendant un chrono en cours
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && ETAT.chronoInterval) demanderWakeLock();
+});
+
+// =============================================================
+// MOTIVATION DU JOUR (clic sur le titre Réveil ou Soir)
+// =============================================================
+const VIDEO_TECHNIQUE_POMPES = 't-I28JRPEag';
+const VIDEO_TECHNIQUE_GAINAGE = '_YHkhPaXyZc';
+
+function ouvrirMotivation(cle) {
+  const format = formatMotivationDuJour();
+  const titre = document.getElementById('motivation-titre');
+  const contenu = document.getElementById('motivation-contenu');
+  titre.textContent = cle === 'reveil' ? '☀️ Un coup de boost pour démarrer' : '🌙 Pour finir la journée en beauté';
+
+  if (format === 'video1' || format === 'video2') {
+    const idVideo = format === 'video1' ? VIDEO_TECHNIQUE_POMPES : VIDEO_TECHNIQUE_GAINAGE;
+    const label = format === 'video1' ? 'Bien exécuter ses pompes' : 'Bien tenir la planche (gainage)';
+    contenu.innerHTML = `
+      <a href="https://www.youtube.com/watch?v=${idVideo}" target="_blank" style="text-decoration:none">
+        <div class="motivation-video">
+          <img src="https://img.youtube.com/vi/${idVideo}/hqdefault.jpg" alt="">
+          <div class="play-overlay"><svg viewBox="0 0 24 24" width="44" height="44" fill="white"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+      </a>
+      <p style="text-align:center;font-size:13px;color:var(--ink-soft);margin-top:8px">${label}</p>`;
+
+  } else if (format === 'illustration') {
+    contenu.innerHTML = `
+      <div class="motivation-illustration">
+        <svg width="140" height="160" viewBox="0 0 140 160" fill="none">
+          <circle cx="70" cy="28" r="16" fill="#1E2430"/>
+          <path d="M70 44 L70 95" stroke="#1E2430" stroke-width="10" stroke-linecap="round"/>
+          <path d="M70 55 L35 40 M70 55 L105 40" stroke="#FF6B4A" stroke-width="9" stroke-linecap="round"/>
+          <path d="M70 95 L45 145 M70 95 L95 145" stroke="#1E2430" stroke-width="10" stroke-linecap="round"/>
+          <path d="M55 20 L60 8 M85 20 L80 8 M70 8 L70 2" stroke="#FFC97A" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="motivation-citation" style="font-size:15px">La meilleure version de vous-même vous attend, une répétition à la fois.</p>`;
+
+  } else if (format === 'citation-sport') {
+    const c = citationDuJour(CITATIONS_SPORT, new Date());
+    contenu.innerHTML = `<p class="motivation-citation">« ${c.texte} »</p><p class="motivation-auteur">— ${c.auteur}</p>`;
+
+  } else if (format === 'citation-athlete') {
+    const c = citationDuJour(CITATIONS_ATHLETES, new Date());
+    contenu.innerHTML = `<p class="motivation-citation">« ${c.texte} »</p><p class="motivation-auteur">— ${c.auteur}</p>`;
+
+  } else if (format === 'animation') {
+    contenu.innerHTML = `
+      <div class="anim-pompe"><div class="anim-pompe-bonhomme">🏋️</div></div>
+      <p style="text-align:center;font-size:14px;color:var(--ink-soft)">Allez, encore un effort !</p>`;
+
+  } else if (format === 'fait') {
+    const idx = jourDeLAnnee(new Date()) % FAITS_MOTIVANTS.length;
+    contenu.innerHTML = `<p class="motivation-fait">💡 ${FAITS_MOTIVANTS[idx]}</p>`;
+  }
+
+  document.getElementById('modal-motivation').style.display = 'flex';
+}
+function fermerMotivation() {
+  document.getElementById('modal-motivation').style.display = 'none';
 }

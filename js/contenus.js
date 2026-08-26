@@ -95,3 +95,41 @@ function citationDuJour(liste, date) {
   const idx = jourDeLAnnee(date) % liste.length;
   return liste[idx];
 }
+
+
+// =============================================================
+// MOTIVATION DU JOUR — 7 formats différents, un par jour de semaine
+// (même format pour Réveil et Soir le même jour, ça change le lendemain)
+// =============================================================
+
+const CITATIONS_SPORT = [
+  { texte: "La douleur est temporaire, l'abandon est éternel.", auteur: "Lance Armstrong" },
+  { texte: "On ne devient pas fort en faisant ce qui est facile.", auteur: "Anonyme" },
+  { texte: "Le corps accomplit ce que l'esprit croit possible.", auteur: "Anonyme" },
+  { texte: "Chaque répétition compte, même celle que personne ne voit.", auteur: "Anonyme" },
+  { texte: "La discipline bat la motivation quand elle a disparu.", auteur: "Anonyme" },
+];
+
+const CITATIONS_ATHLETES = [
+  { texte: "Je ne perds jamais. Soit je gagne, soit j'apprends.", auteur: "Nelson Mandela" },
+  { texte: "La différence entre l'impossible et le possible réside dans la détermination.", auteur: "Tommy Lasorda" },
+  { texte: "Il faut s'entraîner comme si on n'avait jamais gagné, et jouer comme si on n'avait jamais perdu.", auteur: "Michael Jordan" },
+  { texte: "Le champion, c'est celui qui se relève même quand il ne le peut pas.", auteur: "Jack Dempsey" },
+  { texte: "Le succès n'est pas final, l'échec n'est pas fatal : c'est le courage de continuer qui compte.", auteur: "Winston Churchill" },
+];
+
+const FAITS_MOTIVANTS = [
+  "Faire des pompes régulièrement renforce non seulement les bras, mais aussi les épaules, le dos et les abdominaux — c'est un des exercices les plus complets qui existent.",
+  "Le gainage améliore la posture au quotidien : un tronc plus fort, c'est moins de douleurs de dos sur le long terme.",
+  "20 minutes d'activité physique par jour suffisent à réduire significativement le risque de maladies cardiovasculaires.",
+  "La régularité prime sur l'intensité : 3 séances courtes par semaine sur la durée valent mieux qu'une séance intense isolée.",
+  "L'exercice matinal augmente la production d'endorphines pour plusieurs heures — un vrai coup de boost avant la journée.",
+];
+
+// Un format différent chaque jour de la semaine, identique matin et soir
+const FORMATS_MOTIVATION = ['video1', 'illustration', 'citation-sport', 'animation', 'video2', 'citation-athlete', 'fait'];
+
+function formatMotivationDuJour() {
+  const jourIdx = new Date().getDay(); // 0=dimanche ... 6=samedi
+  return FORMATS_MOTIVATION[jourIdx];
+}
