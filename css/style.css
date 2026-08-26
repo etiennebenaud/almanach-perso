@@ -1,0 +1,459 @@
+/* =============================================================
+   ALMANACH — style.css
+   Concept : deux registres typographiques —
+   un registre éditorial chaleureux (citations, anecdote)
+   et un registre technique/mono (routine, marchés, heure).
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --ink:        #1E2430;
+  --ink-soft:   #4A5163;
+  --paper:      #FBFAF7;
+  --paper-dim:  #F1EEE6;
+  --rule:       #DCD5C4;
+
+  --coral:      #FF6B4A;
+  --coral-dim:  #FFE4DB;
+  --moss:       #6E8F6B;
+  --moss-dim:   #E6EDE4;
+  --steel:      #3E6B8A;
+  --steel-dim:  #E3EBF0;
+
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 40px;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 18px 0;
+}
+
+/* ── En-tête ──────────────────────────────────────────────── */
+.entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+#date-jour {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+#heure-actuelle {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+#salutation {
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
+  font-weight: 600;
+  margin: 2px 0 18px;
+}
+
+/* ── Frise de la journée (signature visuelle) ────────────── */
+.frise-journee {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  margin-bottom: 26px;
+  background: linear-gradient(90deg,
+    #2B3654 0%,     /* nuit */
+    #7C86B8 15%,    /* aube */
+    #FFC97A 27%,    /* lever */
+    #FDECC8 45%,    /* matin */
+    #FFF6E5 55%,    /* midi */
+    #FDECC8 65%,    /* après-midi */
+    #FFC97A 78%,    /* fin de journée */
+    #7C6B9C 90%,    /* crépuscule */
+    #2B3654 100%    /* nuit */
+  );
+}
+.frise-marqueur {
+  position: absolute;
+  top: 50%;
+  width: 14px; height: 14px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 1s linear;
+}
+
+/* ── Carte hero : citation motivation ────────────────────── */
+.hero {
+  padding: 8px 2px 28px;
+}
+.hero-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--coral);
+  margin-bottom: 10px;
+  display: block;
+}
+.hero-quote {
+  font-family: 'Fraunces', serif;
+  font-optical-sizing: auto;
+  font-size: 27px;
+  line-height: 1.28;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+.hero-auteur {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+/* ── Cartes génériques ────────────────────────────────────── */
+.carte {
+  background: white;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 18px 18px 20px;
+  margin-bottom: 14px;
+}
+.carte-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.carte-bien-etre { border-left: 3px solid var(--moss); }
+.carte-bien-etre .carte-eyebrow { color: var(--moss); }
+.carte-bien-etre .citation-texte { font-style: italic; }
+
+.carte-anecdote { border-left: 3px solid var(--steel); }
+.carte-anecdote .carte-eyebrow { color: var(--steel); }
+
+.citation-texte {
+  font-family: 'Fraunces', serif;
+  font-size: 17px;
+  line-height: 1.45;
+  margin: 0 0 8px;
+}
+.citation-auteur {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+#anecdote-texte {
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Routine du jour ──────────────────────────────────────── */
+.routine-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.routine-titre {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+#routine-theme {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--coral);
+}
+
+.routine-bloc {
+  margin-bottom: 14px;
+}
+.routine-bloc-titre {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.routine-bloc ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.routine-bloc li { color: var(--ink-soft); }
+
+.petit-dej {
+  background: var(--coral-dim);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 4px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.petit-dej-icone { font-size: 18px; line-height: 1.4; }
+#petit-dej-texte {
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0;
+  color: var(--ink);
+}
+
+/* ── Marchés financiers ───────────────────────────────────── */
+.carte-marches { border-left: 3px solid var(--ink); }
+.marche-ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--paper-dim);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.marche-ligne:last-child { border-bottom: none; }
+.marche-nom {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.marche-valeur {
+  font-size: 13.5px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.marche-variation {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+.marche-variation.hausse { color: var(--moss); background: var(--moss-dim); }
+.marche-variation.baisse { color: var(--coral); background: var(--coral-dim); }
+.marche-indispo { color: var(--ink-soft); font-style: italic; font-size: 12px; }
+
+/* ── Pied de page ─────────────────────────────────────────── */
+.pied {
+  text-align: center;
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 24px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .hero-quote { font-size: 23px; }
+  #salutation { font-size: 22px; }
+}
+
+/* ── Accessibilité : focus clavier visible ───────────────── */
+a:focus-visible, button:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+}
+
+/* ── Réduction de mouvement ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .frise-marqueur { transition: none; }
+}
+
+/* =============================================================
+   AJOUTS — écrans Réglages, Vidéos, Calendrier, modals, etc.
+   ============================================================= */
+
+/* ── En-tête v2 (sans la frise) ─────────────────────────────── */
+.entete-v2 { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.entete-gauche { display: flex; align-items: center; gap: 8px; }
+.icone-moment { font-size: 20px; }
+.streak-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--coral); background: var(--coral-dim);
+  padding: 3px 9px; border-radius: 20px;
+}
+.jour-label { font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); }
+
+/* ── Routine header avec bouton Modifier + badge mois ───────── */
+.routine-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+.routine-header-droite { display: flex; align-items: center; gap: 8px; }
+.modifier-lien { font-size: 11px; color: var(--steel); font-weight: 600; background: none; border: none; cursor: pointer; white-space: nowrap; }
+.mois-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600;
+  color: var(--ink-soft); background: var(--paper-dim); padding: 2px 7px; border-radius: 6px;
+}
+.bloc-reveil-musc { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+.bloc-titre-mini { font-size: 11.5px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
+
+.btn-fait {
+  margin-top: 12px; width: 100%; background: var(--ink); color: white;
+  border: none; border-radius: 10px; padding: 10px; font-size: 12.5px; font-weight: 600;
+  font-family: 'Inter', sans-serif; cursor: pointer;
+}
+.btn-fait.fait { background: var(--paper-dim); color: var(--ink-soft); }
+.btn-fait.sport { background: var(--coral); }
+
+/* ── Séance du jour ──────────────────────────────────────────── */
+.carte-seance { border-left: 3px solid var(--coral); }
+.carte-seance .carte-eyebrow { color: var(--coral); justify-content: space-between; align-items: center; display: flex; }
+.carte-repos { border-left: 3px solid var(--ink-soft); background: var(--paper-dim); }
+.carte-repos .carte-eyebrow { color: var(--ink-soft); }
+.lien-gerer { font-size: 11px; font-weight: 600; color: var(--coral); background: var(--coral-dim); border: none; border-radius: 7px; padding: 4px 10px; cursor: pointer; }
+.seance-video { position: relative; width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+.seance-video img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+.seance-video .play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(30,36,48,0.25); }
+.seance-titre-video { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; margin: 0 0 8px; color: var(--ink); }
+
+/* ── Carte rappel / bilan dimanche ──────────────────────────── */
+.carte-rappel { border-left: 3px solid var(--coral); background: var(--coral-dim); }
+.carte-bilan { border-left: 3px solid var(--steel); }
+.intention-input {
+  width: 100%; border: 1px solid var(--rule); border-radius: 8px;
+  padding: 9px 10px; font-size: 13.5px; font-family: 'Inter', sans-serif; box-sizing: border-box;
+}
+
+/* ── FAB Réglages ─────────────────────────────────────────────── */
+.fab-reglages {
+  position: fixed; bottom: 20px; right: 20px;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--ink); color: white;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 10px rgba(30,36,48,0.25);
+  border: none; cursor: pointer; z-index: 10;
+}
+
+/* ── Écrans admin (Réglages / Vidéos / Calendrier) ──────────── */
+.admin-page { background: var(--paper); min-height: 100vh; padding: 20px 18px 60px; }
+.admin-header { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.admin-retour { font-size: 12px; color: var(--steel); background: none; border: none; margin-bottom: 14px; cursor: pointer; padding: 0; }
+.section-titre {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ink-soft); margin: 22px 0 10px;
+}
+.section-titre-note { font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+/* Types de séance */
+.type-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--paper-dim); }
+.type-item:last-child { border-bottom: none; }
+.type-pastille { width: 12px; height: 12px; border-radius: 4px; flex-shrink: 0; }
+.type-nom { flex: 1; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.type-suppr { color: var(--coral); background: none; border: none; font-size: 15px; cursor: pointer; }
+.type-ajout { display: flex; gap: 6px; }
+.type-ajout input { flex: 1; border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; font-family: 'Inter', sans-serif; }
+.type-ajout button { background: var(--steel); color: white; border: none; border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.limite-note { font-size: 11px; color: var(--ink-soft); margin-top: 6px; text-align: right; }
+
+/* Planning semaine */
+.jour-planning-ligne { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--paper-dim); }
+.jour-planning-ligne:last-child { border-bottom: none; }
+.jour-planning-nom { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.jour-select-natif {
+  border: 1px solid var(--rule); border-radius: 8px; padding: 6px 10px;
+  font-size: 12.5px; font-weight: 600; color: var(--ink); background: white;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Toggles */
+.reglage-ligne { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--paper-dim); }
+.reglage-ligne:last-child { border-bottom: none; }
+.reglage-label { font-size: 13.5px; color: var(--ink); }
+.reglage-desc { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+.toggle { width: 38px; height: 22px; border-radius: 11px; background: var(--rule); position: relative; flex-shrink: 0; cursor: pointer; }
+.toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: white; transition: left .15s; }
+.toggle.on { background: var(--moss); }
+.toggle.on::after { left: 18px; }
+
+.record-input {
+  border: 1px solid var(--rule); border-radius: 8px; padding: 6px 10px;
+  font-size: 13px; width: 80px; text-align: center; font-family: 'IBM Plex Mono', monospace;
+}
+.btn-lien-large {
+  width: 100%; background: var(--steel); color: white; border: none;
+  border-radius: 10px; padding: 12px; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Écran Vidéos ─────────────────────────────────────────────── */
+.lien-item { display: flex; align-items: center; gap: 10px; background: white; border: 1px solid var(--rule); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
+.lien-item.actif { border: 2px solid var(--moss); }
+.lien-thumb { width: 60px; height: 34px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.lien-info { flex: 1; min-width: 0; }
+.lien-label { font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lien-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--rule); flex-shrink: 0; }
+.lien-radio.checked { border-color: var(--moss); background: radial-gradient(var(--moss) 0 40%, transparent 41%); }
+.lien-suppr { color: var(--coral); background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px; }
+.form-ajout { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.form-ajout input { border: 1px solid var(--rule); border-radius: 8px; padding: 9px 10px; font-size: 13px; font-family: 'Inter', sans-serif; }
+.form-ajout button { background: var(--steel); color: white; border: none; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+/* ── Écran Calendrier ─────────────────────────────────────────── */
+.calendrier-grille { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
+.calendrier-case { background: white; border: 1px solid var(--rule); border-radius: 8px; padding: 6px 2px; text-align: center; }
+.calendrier-case.futur { opacity: 0.35; }
+.calendrier-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-soft); }
+.calendrier-pastille { font-size: 14px; margin-top: 2px; }
+.calendrier-legende { font-size: 11.5px; color: var(--ink-soft); margin-top: 14px; text-align: center; }
+
+/* ── Modals ───────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(30,36,48,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+}
+.modal-boite {
+  background: var(--paper); border-radius: 16px; padding: 20px;
+  max-width: 380px; width: 100%; max-height: 80vh; overflow-y: auto;
+}
+.modal-titre { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; margin-bottom: 12px; }
+.modal-boite textarea {
+  width: 100%; border: 1px solid var(--rule); border-radius: 10px; padding: 10px;
+  font-size: 13.5px; font-family: 'Inter', sans-serif; box-sizing: border-box; resize: vertical;
+}
+.modal-note { font-size: 11px; color: var(--ink-soft); margin: 6px 0 0; }
+.modal-actions { display: flex; gap: 8px; margin-top: 14px; }
+.btn-secondaire, .btn-primaire {
+  flex: 1; border: none; border-radius: 10px; padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+.btn-secondaire { background: var(--paper-dim); color: var(--ink); }
+.btn-primaire { background: var(--ink); color: white; }
+
+.chrono-affichage {
+  font-family: 'IBM Plex Mono', monospace; font-size: 44px; font-weight: 600;
+  color: var(--coral); margin: 20px 0;
+}
+
+.text-sm { font-size: 13px; color: var(--ink-soft); }
+
+.btn-chrono-mini {
+  margin-top: 8px; background: none; border: 1px dashed var(--rule);
+  color: var(--ink-soft); font-size: 11.5px; font-weight: 600;
+  padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}

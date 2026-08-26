@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1E2430">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Almanach</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+
+<!-- ═══════════════ ÉCRAN : ACCUEIL ═══════════════ -->
+<div class="page" id="vue-accueil">
+
+  <div class="entete-v2">
+    <div class="entete-gauche">
+      <span class="icone-moment" id="icone-moment">☀️</span>
+      <span class="jour-label" id="date-jour">—</span>
+    </div>
+    <span class="streak-badge" id="streak-badge" style="display:none">🔥 0 séance</span>
+  </div>
+  <h1 id="salutation">—</h1>
+
+  <!-- Rappel "pas encore fait" -->
+  <div id="zone-rappel"></div>
+
+  <!-- Bilan du dimanche -->
+  <div id="zone-bilan-dimanche"></div>
+
+  <!-- Citation motivation -->
+  <div class="hero">
+    <span class="hero-eyebrow">✦ Pensée du jour</span>
+    <p class="hero-quote" id="citation-motiv-texte">Chargement…</p>
+    <div class="hero-auteur" id="citation-motiv-auteur"></div>
+  </div>
+
+  <!-- Citation bien-être -->
+  <div class="carte carte-bien-etre">
+    <div class="carte-eyebrow">🌿 Bien-être</div>
+    <p class="citation-texte" id="citation-bien-texte">Chargement…</p>
+    <div class="citation-auteur" id="citation-bien-auteur"></div>
+  </div>
+
+  <!-- Anecdote -->
+  <div class="carte carte-anecdote">
+    <div class="carte-eyebrow">📜 Le saviez-vous</div>
+    <p id="anecdote-texte">Chargement…</p>
+  </div>
+
+  <!-- Intention du jour (si activée) -->
+  <div id="zone-intention"></div>
+
+  <!-- Réveil -->
+  <div class="carte">
+    <div class="routine-header-flex">
+      <span class="routine-titre">☀️ Réveil</span>
+      <div class="routine-header-droite">
+        <span class="mois-badge" id="mois-badge-reveil">Mois 1</span>
+        <button class="modifier-lien" onclick="ouvrirEditionRoutine('reveil')">Modifier</button>
+      </div>
+    </div>
+    <ul id="liste-reveil-principal"></ul>
+    <button class="btn-chrono-mini" onclick="ouvrirChrono()">⏱️ Chrono gainage</button>
+    <div class="bloc-reveil-musc">
+      <div class="bloc-titre-mini">🧘 Réveil musculaire (optionnel)</div>
+      <ul id="liste-reveil-musculaire"></ul>
+    </div>
+    <button class="btn-fait" id="btn-fait-reveil" onclick="toggleFait('reveil')">Marquer comme fait</button>
+  </div>
+
+  <!-- Séance du jour -->
+  <div id="zone-seance-jour"></div>
+
+  <!-- Petit-déjeuner -->
+  <div class="carte">
+    <div class="routine-header-flex">
+      <span class="routine-titre" style="color:var(--ink-soft)">🍳 Petit-déjeuner</span>
+      <button class="modifier-lien" onclick="ouvrirEditionPetitDej()">Modifier</button>
+    </div>
+    <p id="petit-dej-texte" style="margin:0;font-size:14px;line-height:1.55;color:var(--ink)"></p>
+  </div>
+
+  <!-- Soir -->
+  <div class="carte">
+    <div class="routine-header-flex">
+      <span class="routine-titre">🌙 Soir</span>
+      <div class="routine-header-droite">
+        <span class="mois-badge" id="mois-badge-soir">Mois 1</span>
+        <button class="modifier-lien" onclick="ouvrirEditionRoutine('soir')">Modifier</button>
+      </div>
+    </div>
+    <ul id="liste-soir-principal"></ul>
+    <button class="btn-chrono-mini" onclick="ouvrirChrono()">⏱️ Chrono gainage</button>
+    <div class="bloc-reveil-musc">
+      <div class="bloc-titre-mini">🔥 Circuit abdos debout</div>
+      <ul id="liste-abdos-soir"></ul>
+    </div>
+    <button class="btn-fait" id="btn-fait-soir" onclick="toggleFait('soir')">Marquer comme fait</button>
+  </div>
+
+  <!-- Marchés -->
+  <div class="carte carte-marches">
+    <div class="carte-eyebrow">📈 Marchés</div>
+    <div id="marches-liste"></div>
+  </div>
+
+  <div class="pied">Almanach — mis à jour automatiquement</div>
+
+  <button class="fab-reglages" onclick="ouvrirReglages()" aria-label="Réglages">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+    </svg>
+  </button>
+
+</div>
+
+<!-- ═══════════════ ÉCRAN : RÉGLAGES ═══════════════ -->
+<div class="page admin-page" id="vue-reglages" style="display:none">
+  <button class="admin-retour" onclick="fermerReglages()">← Retour</button>
+  <div class="admin-header">Réglages</div>
+
+  <div class="section-titre">🎯 Mes types de séance <span class="section-titre-note">(5 max)</span></div>
+  <div class="carte" style="padding:14px" id="liste-types-seance"></div>
+  <div class="carte" style="padding:12px;margin-top:8px">
+    <div class="type-ajout">
+      <input type="text" id="nouveau-type-nom" placeholder="Nouveau type (ex : Piscine)">
+      <button onclick="ajouterTypeSeance()">+ Ajouter</button>
+    </div>
+    <div class="limite-note" id="limite-types-note"></div>
+  </div>
+
+  <div class="section-titre">🗓️ Planning de la semaine</div>
+  <div class="carte" id="planning-semaine-liste"></div>
+
+  <div class="section-titre">⚙️ Général</div>
+  <div class="carte">
+    <div class="reglage-ligne">
+      <div>
+        <div class="reglage-label">Intention du jour</div>
+        <div class="reglage-desc">Une ligne libre à remplir chaque matin</div>
+      </div>
+      <div class="toggle" id="toggle-intention" onclick="toggleReglage('intentionDuJourActive')"></div>
+    </div>
+    <div class="reglage-ligne">
+      <div>
+        <div class="reglage-label">Suivi de série</div>
+        <div class="reglage-desc">Compte les séances sport validées</div>
+      </div>
+      <div class="toggle" id="toggle-serie" onclick="toggleReglage('suiviSerieActive')"></div>
+    </div>
+  </div>
+
+  <div class="section-titre">🏆 Record personnel</div>
+  <div class="carte">
+    <div class="reglage-ligne" style="border:none">
+      <div class="reglage-label">Meilleur gainage</div>
+      <input type="text" id="record-gainage" class="record-input" placeholder="ex: 1m45" onchange="sauverRecordGainage()">
+    </div>
+  </div>
+
+  <div class="section-titre">🏋️ Vidéos & calendrier</div>
+  <div class="carte" style="display:flex;flex-direction:column;gap:8px">
+    <button class="btn-lien-large" onclick="ouvrirVideos()">🎬 Gérer mes vidéos de sport</button>
+    <button class="btn-lien-large" onclick="ouvrirCalendrier()">📅 Voir mon calendrier de séances</button>
+  </div>
+
+</div>
+
+<!-- ═══════════════ ÉCRAN : VIDÉOS ═══════════════ -->
+<div class="page admin-page" id="vue-videos" style="display:none">
+  <button class="admin-retour" onclick="fermerVideos()">← Retour aux réglages</button>
+  <div class="admin-header">Mes vidéos de sport</div>
+  <div id="liste-videos"></div>
+  <div class="carte form-ajout">
+    <input type="text" id="nouvelle-video-url" placeholder="Lien YouTube (collez l'URL ici)">
+    <input type="text" id="nouvelle-video-label" placeholder="Petit nom (ex : Renfo jambes)">
+    <button onclick="ajouterVideo()">+ Ajouter cette vidéo</button>
+  </div>
+</div>
+
+<!-- ═══════════════ ÉCRAN : CALENDRIER ═══════════════ -->
+<div class="page admin-page" id="vue-calendrier" style="display:none">
+  <button class="admin-retour" onclick="fermerCalendrier()">← Retour aux réglages</button>
+  <div class="admin-header" id="calendrier-titre-mois">—</div>
+  <div class="calendrier-grille" id="calendrier-grille"></div>
+  <p class="calendrier-legende">🟠 séance faite · ⚪ prévue, non faite · — repos</p>
+</div>
+
+<!-- ═══════════════ MODAL : ÉDITION ROUTINE / PETIT-DÉJ ═══════════════ -->
+<div class="modal-overlay" id="modal-edition" style="display:none">
+  <div class="modal-boite">
+    <div class="modal-titre" id="modal-edition-titre">Modifier</div>
+    <textarea id="modal-edition-texte" rows="6"></textarea>
+    <p class="modal-note">Une ligne par exercice.</p>
+    <div class="modal-actions">
+      <button class="btn-secondaire" onclick="fermerModalEdition()">Annuler</button>
+      <button class="btn-primaire" onclick="sauverEditionRoutine()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL : CHRONO GAINAGE ═══════════════ -->
+<div class="modal-overlay" id="modal-chrono" style="display:none">
+  <div class="modal-boite" style="text-align:center">
+    <div class="modal-titre">Chrono gainage</div>
+    <div class="chrono-affichage" id="chrono-affichage">01:00</div>
+    <div class="modal-actions">
+      <button class="btn-secondaire" onclick="fermerChrono()">Fermer</button>
+      <button class="btn-primaire" id="btn-chrono-demarrer" onclick="toggleChrono()">▶️ Démarrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL : SÉLECTION VIDÉO ACTIVE ═══════════════ -->
+<div class="modal-overlay" id="modal-choix-video" style="display:none">
+  <div class="modal-boite">
+    <div class="modal-titre">Choisir la séance du jour</div>
+    <div id="modal-choix-video-liste"></div>
+    <div class="modal-actions">
+      <button class="btn-secondaire" onclick="fermerChoixVideo()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="config.js"></script>
+<script src="js/contenus.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
