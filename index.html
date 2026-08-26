@@ -61,21 +61,21 @@
   <div id="zone-intention"></div>
 
   <!-- Réveil -->
-  <div class="carte" id="carte-reveil">
+  <div class="carte carte-clic-motivation" id="carte-reveil" onclick="ouvrirMotivation('reveil')">
     <div class="routine-header-flex">
-      <span class="routine-titre routine-titre-clic" onclick="ouvrirMotivation('reveil')">☀️ Réveil</span>
+      <span class="routine-titre">☀️ Réveil</span>
       <div class="routine-header-droite">
         <span class="mois-badge" id="mois-badge-reveil">Mois 1</span>
-        <button class="modifier-lien" onclick="ouvrirEditionRoutine('reveil')">Modifier</button>
+        <button class="modifier-lien" onclick="event.stopPropagation();ouvrirEditionRoutine('reveil')">Modifier</button>
       </div>
     </div>
     <ul id="liste-reveil-principal"></ul>
-    <button class="btn-chrono-mini" onclick="ouvrirChrono()">⏱️ Chrono gainage</button>
+    <button class="btn-chrono-mini" onclick="event.stopPropagation();ouvrirChrono()">⏱️ Chrono gainage</button>
     <div class="bloc-reveil-musc">
       <div class="bloc-titre-mini">🧘 Réveil musculaire (optionnel)</div>
       <ul id="liste-reveil-musculaire"></ul>
     </div>
-    <button class="btn-fait" id="btn-fait-reveil" onclick="toggleFait('reveil')">Marquer comme fait</button>
+    <button class="btn-fait" id="btn-fait-reveil" onclick="event.stopPropagation();toggleFait('reveil')">Marquer comme fait</button>
   </div>
 
   <!-- Séance du jour -->
@@ -91,21 +91,21 @@
   </div>
 
   <!-- Soir -->
-  <div class="carte" id="carte-soir">
+  <div class="carte carte-clic-motivation" id="carte-soir" onclick="ouvrirMotivation('soir')">
     <div class="routine-header-flex">
-      <span class="routine-titre routine-titre-clic" onclick="ouvrirMotivation('soir')">🌙 Soir</span>
+      <span class="routine-titre">🌙 Soir</span>
       <div class="routine-header-droite">
         <span class="mois-badge" id="mois-badge-soir">Mois 1</span>
-        <button class="modifier-lien" onclick="ouvrirEditionRoutine('soir')">Modifier</button>
+        <button class="modifier-lien" onclick="event.stopPropagation();ouvrirEditionRoutine('soir')">Modifier</button>
       </div>
     </div>
     <ul id="liste-soir-principal"></ul>
-    <button class="btn-chrono-mini" onclick="ouvrirChrono()">⏱️ Chrono gainage</button>
+    <button class="btn-chrono-mini" onclick="event.stopPropagation();ouvrirChrono()">⏱️ Chrono gainage</button>
     <div class="bloc-reveil-musc">
       <div class="bloc-titre-mini">🔥 Circuit abdos debout</div>
       <ul id="liste-abdos-soir"></ul>
     </div>
-    <button class="btn-fait" id="btn-fait-soir" onclick="toggleFait('soir')">Marquer comme fait</button>
+    <button class="btn-fait" id="btn-fait-soir" onclick="event.stopPropagation();toggleFait('soir')">Marquer comme fait</button>
   </div>
 
   <div class="pied">Almanach — mis à jour automatiquement</div>
@@ -195,6 +195,23 @@
 <div class="modal-overlay" id="modal-edition" style="display:none">
   <div class="modal-boite">
     <div class="modal-titre" id="modal-edition-titre">Modifier</div>
+
+    <div id="zone-override-pompes" style="display:none">
+      <div class="override-champs">
+        <div class="override-champ">
+          <label>Pompes</label>
+          <input type="number" id="override-pompes" min="0">
+        </div>
+        <div class="override-champ">
+          <label>Gainage (secondes)</label>
+          <input type="number" id="override-gainage" min="0">
+        </div>
+      </div>
+      <button class="lien-reset-auto" id="btn-reset-auto" onclick="reinitialiserProgressionAuto()">🔄 Revenir à la progression automatique</button>
+      <div class="separateur-modal"></div>
+      <label class="modal-sous-label">Exercices complémentaires</label>
+    </div>
+
     <textarea id="modal-edition-texte" rows="6"></textarea>
     <p class="modal-note">Une ligne par exercice.</p>
     <div class="modal-actions">

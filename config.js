@@ -11,10 +11,15 @@ const CONFIG = {
   nomApp: "Almanach",
 
   // ── Marchés financiers ──────────────────────────────────────
-  twelveDataApiKey: "7a29265938c34c17967caa52a4825ff1",  // https://twelvedata.com/ → compte gratuit
+  twelveDataApiKey: "",  // https://twelvedata.com/ → compte gratuit
+  // Les indices bruts (^FCHI, ^GSPC) sont réservés aux plans payants de Twelve Data.
+  // On utilise donc des ETF qui répliquent ces indices, accessibles en plan gratuit :
+  //  - CAC (Euronext Paris)  : Amundi CAC 40 UCITS ETF Dist, ~1/100e de la valeur du CAC 40
+  //  - SPY (NYSE Arca)       : SPDR S&P 500 ETF Trust, ~1/10e de la valeur du S&P 500
+  // Ce sont donc des valeurs approchées (mais fidèles en évolution %), pas les indices exacts.
   marches: [
-    { symbole: "^FCHI", symboleTwelveData: "FCHI", nom: "CAC 40",  devise: "€" },
-    { symbole: "^GSPC", symboleTwelveData: "SPX",  nom: "S&P 500", devise: "$" },
+    { symbole: "^FCHI", symboleTwelveData: "CAC", exchangeTwelveData: "Euronext", nom: "CAC 40 (ETF)",  devise: "€" },
+    { symbole: "^GSPC", symboleTwelveData: "SPY", exchangeTwelveData: "NYSE",     nom: "S&P 500 (ETF)", devise: "$" },
   ],
 
   // ── Progression Réveil / Soir (pompes + gainage) ────────────
