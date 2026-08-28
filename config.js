@@ -11,7 +11,7 @@ const CONFIG = {
   nomApp: "Almanach",
 
   // ── Marchés financiers ──────────────────────────────────────
-  twelveDataApiKey: "",  // https://twelvedata.com/ → compte gratuit
+  twelveDataApiKey: "7a29265938c34c17967caa52a4825ff1",  // https://twelvedata.com/ → compte gratuit
   // Les indices bruts (^FCHI, ^GSPC) sont réservés aux plans payants de Twelve Data.
   // On utilise donc des ETF qui répliquent ces indices, accessibles en plan gratuit :
   //  - CAC (Euronext Paris)  : Amundi CAC 40 UCITS ETF Dist, ~1/100e de la valeur du CAC 40

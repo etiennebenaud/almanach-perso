@@ -75,6 +75,7 @@
       <div class="bloc-titre-mini">🧘 Réveil musculaire (optionnel)</div>
       <ul id="liste-reveil-musculaire"></ul>
     </div>
+    <div id="zone-video-reveil"></div>
     <button class="btn-fait" id="btn-fait-reveil" onclick="event.stopPropagation();toggleFait('reveil')">Marquer comme fait</button>
   </div>
 
@@ -105,6 +106,7 @@
       <div class="bloc-titre-mini">🔥 Circuit abdos debout</div>
       <ul id="liste-abdos-soir"></ul>
     </div>
+    <div id="zone-video-soir"></div>
     <button class="btn-fait" id="btn-fait-soir" onclick="event.stopPropagation();toggleFait('soir')">Marquer comme fait</button>
   </div>
 
@@ -136,6 +138,9 @@
 
   <div class="section-titre">🗓️ Planning de la semaine</div>
   <div class="carte" id="planning-semaine-liste"></div>
+
+  <div class="section-titre">🍳 Menu petit-déjeuner de la semaine</div>
+  <div class="carte" id="menu-petitdej-semaine"></div>
 
   <div class="section-titre">⚙️ Général</div>
   <div class="carte">
@@ -213,6 +218,14 @@
     </div>
 
     <textarea id="modal-edition-texte" rows="6"></textarea>
+
+    <div id="zone-video-routine" style="display:none">
+      <div class="separateur-modal"></div>
+      <label class="modal-sous-label">Vidéo complémentaire (YouTube, Facebook, TikTok...)</label>
+      <input type="text" id="video-routine-texte" placeholder="Petit texte (ex : Bien s'échauffer avant)" style="margin-bottom:6px">
+      <input type="text" id="video-routine-url" placeholder="Lien de la vidéo (optionnel)">
+    </div>
+
     <p class="modal-note">Une ligne par exercice.</p>
     <div class="modal-actions">
       <button class="btn-secondaire" onclick="fermerModalEdition()">Annuler</button>
