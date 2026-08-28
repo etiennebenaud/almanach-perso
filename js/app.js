@@ -259,6 +259,8 @@ function afficherRoutine(cle) {
       ETAT.circuitAbdosSoir.map(ex => `<li>${ex}</li>`).join('');
   }
 
+  afficherVideoRoutine(cle);
+
   const btn = document.getElementById(`btn-fait-${cle}`);
   const fait = ETAT.journalDuJour[`${cle}Fait`];
   btn.textContent = fait ? '✓ Fait' : 'Marquer comme fait';
@@ -288,6 +290,14 @@ function ouvrirEditionRoutine(cle) {
 
   const champ = cle === 'reveil' ? 'reveilMusculaire' : 'circuitAbdosSoir';
   document.getElementById('modal-edition-texte').value = ETAT[champ].join('\n');
+
+  // Vidéo complémentaire
+  document.getElementById('zone-video-routine').style.display = 'block';
+  const champVideo = cle === 'reveil' ? 'videoReveil' : 'videoSoir';
+  const video = ETAT[champVideo] || { texte: '', url: '' };
+  document.getElementById('video-routine-texte').value = video.texte || '';
+  document.getElementById('video-routine-url').value = video.url || '';
+
   document.getElementById('modal-edition').style.display = 'flex';
 }
 
@@ -297,6 +307,7 @@ function ouvrirEditionPetitDej() {
   document.getElementById('modal-edition-titre').textContent = `Petit-déjeuner du ${JOURS_AFFICHAGE[new Date().getDay()].toLowerCase()}`;
   document.querySelector('#modal-edition .modal-note').textContent = '';
   document.getElementById('zone-override-pompes').style.display = 'none';
+  document.getElementById('zone-video-routine').style.display = 'none';
   document.getElementById('modal-edition-texte').value = ETAT.petitsDejeuners[jourKey] || '';
   document.getElementById('modal-edition').style.display = 'flex';
 }
@@ -323,9 +334,14 @@ async function sauverEditionRoutine() {
   const gainageSec = parseInt(document.getElementById('override-gainage').value, 10);
   const champOverride = cle === 'reveil' ? 'overrideReveil' : 'overrideSoir';
 
+  const champVideo = cle === 'reveil' ? 'videoReveil' : 'videoSoir';
+  const videoTexte = document.getElementById('video-routine-texte').value.trim();
+  const videoUrl = document.getElementById('video-routine-url').value.trim();
+
   await sauverEtat({
     [champListe]: lignes,
     [champOverride]: { pompes, gainageSec },
+    [champVideo]: { texte: videoTexte, url: videoUrl },
   });
   afficherRoutine(cle);
   fermerModalEdition();
@@ -528,15 +544,8 @@ async function chargerMarches() {
   ).join('');
   for (const marche of CONFIG.marches) chargerUnMarche(marche);
 }
-async function essayerYahoo(symbole) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbole)}`;
-  const r = await fetch(url);
-  if (!r.ok) throw new Error('HTTP ' + r.status);
-  const data = await r.json();
-  const meta = data?.chart?.result?.[0]?.meta;
-  if (!meta) throw new Error('Données Yahoo vides');
-  return { prix: meta.regularMarketPrice, cloturePrec: meta.previousClose || meta.chartPreviousClose };
-}
+// Yahoo Finance a été retiré : bloqué par CORS dans 100% des cas en usage réel
+// depuis un navigateur (confirmé), inutile de tenter l'appel à chaque fois.
 async function essayerTwelveData(symboleTwelveData, exchangeTwelveData) {
   if (!CONFIG.twelveDataApiKey) throw new Error('Pas de clé Twelve Data');
   let url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(symboleTwelveData)}&apikey=${CONFIG.twelveDataApiKey}`;
@@ -550,11 +559,9 @@ async function essayerTwelveData(symboleTwelveData, exchangeTwelveData) {
 async function chargerUnMarche(marche) {
   const ligne = document.getElementById(`marche-${marche.symbole.replace('^','')}`);
   let resultat = null;
-  try { resultat = await essayerYahoo(marche.symbole); }
-  catch (e) {
-    try { resultat = await essayerTwelveData(marche.symboleTwelveData, marche.exchangeTwelveData); }
-    catch (e2) { console.warn(`Marché ${marche.nom} indisponible`, e, e2); }
-  }
+  try {
+    resultat = await essayerTwelveData(marche.symboleTwelveData, marche.exchangeTwelveData);
+  } catch (e) { console.warn(`Marché ${marche.nom} indisponible`, e); }
   if (!resultat || !resultat.prix || !resultat.cloturePrec) {
     ligne.innerHTML = `<span class="marche-nom">${marche.nom}</span><span class="marche-valeur marche-indispo">indisponible</span>`;
     return;
@@ -596,9 +603,26 @@ function ouvrirReglages() {
   document.getElementById('vue-reglages').style.display = 'block';
   afficherTypesSeance();
   afficherPlanningSemaine();
+  afficherMenuPetitDejSemaine();
   document.getElementById('toggle-intention').classList.toggle('on', ETAT.intentionDuJourActive);
   document.getElementById('toggle-serie').classList.toggle('on', ETAT.suiviSerieActive);
   document.getElementById('record-gainage').value = ETAT.recordGainage || '';
+}
+
+function afficherMenuPetitDejSemaine() {
+  const zone = document.getElementById('menu-petitdej-semaine');
+  const ordre = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+  zone.innerHTML = ordre.map(jourKey => `
+    <div class="menu-jour-bloc">
+      <label class="menu-jour-label">${jourKey.charAt(0).toUpperCase()+jourKey.slice(1)}</label>
+      <textarea class="menu-jour-texte" rows="2"
+        onchange="modifierPetitDejJour('${jourKey}', this.value)">${ETAT.petitsDejeuners[jourKey] || ''}</textarea>
+    </div>`).join('');
+}
+async function modifierPetitDejJour(jourKey, texte) {
+  const petitsDejeuners = { ...ETAT.petitsDejeuners, [jourKey]: texte.trim() };
+  await sauverEtat({ petitsDejeuners });
+  if (jourKey === JOURS_SEMAINE[new Date().getDay()]) afficherPetitDej();
 }
 function fermerReglages() {
   document.getElementById('vue-reglages').style.display = 'none';
@@ -907,4 +931,46 @@ function ouvrirMotivation(cle) {
 }
 function fermerMotivation() {
   document.getElementById('modal-motivation').style.display = 'none';
+}
+
+// =============================================================
+// VIDÉO COMPLÉMENTAIRE RÉVEIL / SOIR (texte + lien YouTube/Facebook/TikTok)
+// =============================================================
+function detecterPlateformeVideo(url) {
+  if (/youtube\.com|youtu\.be/.test(url)) return 'youtube';
+  if (/tiktok\.com/.test(url)) return 'tiktok';
+  if (/facebook\.com|fb\.watch/.test(url)) return 'facebook';
+  return 'autre';
+}
+
+function afficherVideoRoutine(cle) {
+  const champ = cle === 'reveil' ? 'videoReveil' : 'videoSoir';
+  const zone = document.getElementById(`zone-video-${cle}`);
+  const video = ETAT[champ];
+
+  if (!video || (!video.texte && !video.url)) { zone.innerHTML = ''; return; }
+
+  let html = '<div class="video-routine-bloc">';
+  if (video.texte) html += `<p class="video-routine-texte">${video.texte}</p>`;
+
+  if (video.url) {
+    const plateforme = detecterPlateformeVideo(video.url);
+    if (plateforme === 'youtube') {
+      const idVid = extraireIdYoutube(video.url);
+      html += `<a href="${video.url}" target="_blank" class="video-routine-lien" onclick="event.stopPropagation()">
+        <div class="video-routine-thumb">
+          <img src="https://img.youtube.com/vi/${idVid}/hqdefault.jpg" alt="">
+          <div class="play-mini"><svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <span>Voir la vidéo</span>
+      </a>`;
+    } else {
+      const icone = plateforme === 'tiktok' ? '🎵' : plateforme === 'facebook' ? '📘' : '🎬';
+      html += `<a href="${video.url}" target="_blank" class="video-routine-lien" onclick="event.stopPropagation()">
+        <span style="font-size:20px">${icone}</span><span>Voir la vidéo</span>
+      </a>`;
+    }
+  }
+  html += '</div>';
+  zone.innerHTML = html;
 }
