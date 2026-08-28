@@ -508,3 +508,33 @@ a:focus-visible, button:focus-visible {
 }
 .separateur-modal { border-top: 1px dashed var(--rule); margin: 10px 0; }
 .modal-sous-label { font-size: 11.5px; font-weight: 600; color: var(--ink-soft); display: block; margin-bottom: 6px; }
+
+/* ── Menu petit-déjeuner de la semaine (Réglages) ────────────── */
+.menu-jour-bloc { padding: 8px 0; border-bottom: 1px solid var(--paper-dim); }
+.menu-jour-bloc:last-child { border-bottom: none; }
+.menu-jour-label { font-size: 12px; font-weight: 600; color: var(--ink); display: block; margin-bottom: 4px; }
+.menu-jour-texte {
+  width: 100%; border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px;
+  font-size: 13px; font-family: 'Inter', sans-serif; box-sizing: border-box; resize: vertical;
+}
+
+/* ── Vidéo complémentaire Réveil/Soir ─────────────────────────── */
+.video-routine-bloc { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule); }
+.video-routine-texte { font-size: 13px; color: var(--ink); margin-bottom: 8px; line-height: 1.5; }
+.video-routine-lien {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12.5px; font-weight: 600; color: var(--coral);
+  background: var(--coral-dim); border-radius: 8px; padding: 8px 12px;
+  text-decoration: none;
+}
+.video-routine-thumb { width: 50px; height: 50px; border-radius: 8px; overflow: hidden; flex-shrink: 0; position: relative; }
+.video-routine-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.video-routine-thumb .play-mini {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(30,36,48,0.3);
+}
+
+#modal-edition input[type="text"] {
+  width: 100%; border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px;
+  font-size: 13px; font-family: 'Inter', sans-serif; box-sizing: border-box;
+}
