@@ -62,21 +62,30 @@
 
   <!-- Réveil -->
   <div class="carte carte-clic-motivation" id="carte-reveil" onclick="ouvrirMotivation('reveil')">
-    <div class="routine-header-flex">
-      <span class="routine-titre">☀️ Réveil</span>
-      <div class="routine-header-droite">
-        <span class="mois-badge" id="mois-badge-reveil">Mois 1</span>
-        <button class="modifier-lien" onclick="event.stopPropagation();ouvrirEditionRoutine('reveil')">Modifier</button>
+    <div id="contenu-reveil">
+      <div class="routine-header-flex">
+        <span class="routine-titre">☀️ Réveil</span>
+        <div class="routine-header-droite">
+          <span class="mois-badge" id="mois-badge-reveil">Mois 1</span>
+          <button class="modifier-lien" onclick="event.stopPropagation();ouvrirEditionRoutine('reveil')">Modifier</button>
+        </div>
       </div>
+      <ul id="liste-reveil-principal"></ul>
+      <button class="btn-chrono-mini" onclick="event.stopPropagation();ouvrirChrono()">⏱️ Chrono gainage</button>
+      <div class="bloc-reveil-musc">
+        <div class="bloc-titre-mini">🧘 Réveil musculaire (optionnel)</div>
+        <ul id="liste-reveil-musculaire"></ul>
+      </div>
+      <div id="zone-video-reveil"></div>
+      <button class="btn-fait" id="btn-fait-reveil" onclick="event.stopPropagation();toggleFait('reveil')">Marquer comme fait</button>
     </div>
-    <ul id="liste-reveil-principal"></ul>
-    <button class="btn-chrono-mini" onclick="event.stopPropagation();ouvrirChrono()">⏱️ Chrono gainage</button>
-    <div class="bloc-reveil-musc">
-      <div class="bloc-titre-mini">🧘 Réveil musculaire (optionnel)</div>
-      <ul id="liste-reveil-musculaire"></ul>
+    <div id="repos-msg-reveil" style="display:none">
+      <div class="routine-header-flex">
+        <span class="routine-titre" style="color:var(--ink-soft)">☀️ Réveil</span>
+        <button class="modifier-lien" onclick="event.stopPropagation();ouvrirReglages()">Réactiver</button>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--ink-soft)">😌 Pas de routine prévue aujourd'hui — profitez du repos.</p>
     </div>
-    <div id="zone-video-reveil"></div>
-    <button class="btn-fait" id="btn-fait-reveil" onclick="event.stopPropagation();toggleFait('reveil')">Marquer comme fait</button>
   </div>
 
   <!-- Séance du jour -->
@@ -93,21 +102,30 @@
 
   <!-- Soir -->
   <div class="carte carte-clic-motivation" id="carte-soir" onclick="ouvrirMotivation('soir')">
-    <div class="routine-header-flex">
-      <span class="routine-titre">🌙 Soir</span>
-      <div class="routine-header-droite">
-        <span class="mois-badge" id="mois-badge-soir">Mois 1</span>
-        <button class="modifier-lien" onclick="event.stopPropagation();ouvrirEditionRoutine('soir')">Modifier</button>
+    <div id="contenu-soir">
+      <div class="routine-header-flex">
+        <span class="routine-titre">🌙 Soir</span>
+        <div class="routine-header-droite">
+          <span class="mois-badge" id="mois-badge-soir">Mois 1</span>
+          <button class="modifier-lien" onclick="event.stopPropagation();ouvrirEditionRoutine('soir')">Modifier</button>
+        </div>
       </div>
+      <ul id="liste-soir-principal"></ul>
+      <button class="btn-chrono-mini" onclick="event.stopPropagation();ouvrirChrono()">⏱️ Chrono gainage</button>
+      <div class="bloc-reveil-musc">
+        <div class="bloc-titre-mini">🔥 Circuit abdos debout</div>
+        <ul id="liste-abdos-soir"></ul>
+      </div>
+      <div id="zone-video-soir"></div>
+      <button class="btn-fait" id="btn-fait-soir" onclick="event.stopPropagation();toggleFait('soir')">Marquer comme fait</button>
     </div>
-    <ul id="liste-soir-principal"></ul>
-    <button class="btn-chrono-mini" onclick="event.stopPropagation();ouvrirChrono()">⏱️ Chrono gainage</button>
-    <div class="bloc-reveil-musc">
-      <div class="bloc-titre-mini">🔥 Circuit abdos debout</div>
-      <ul id="liste-abdos-soir"></ul>
+    <div id="repos-msg-soir" style="display:none">
+      <div class="routine-header-flex">
+        <span class="routine-titre" style="color:var(--ink-soft)">🌙 Soir</span>
+        <button class="modifier-lien" onclick="event.stopPropagation();ouvrirReglages()">Réactiver</button>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--ink-soft)">😌 Pas de routine prévue aujourd'hui — profitez du repos.</p>
     </div>
-    <div id="zone-video-soir"></div>
-    <button class="btn-fait" id="btn-fait-soir" onclick="event.stopPropagation();toggleFait('soir')">Marquer comme fait</button>
   </div>
 
   <div class="pied">Almanach — mis à jour automatiquement</div>
@@ -125,6 +143,19 @@
 <div class="page admin-page" id="vue-reglages" style="display:none">
   <button class="admin-retour" onclick="fermerReglages()">← Retour</button>
   <div class="admin-header">Réglages</div>
+
+  <div class="section-titre">🗓️ Jours actifs — Réveil &amp; Soir</div>
+  <div class="carte">
+    <p class="text-sm" style="margin-bottom:10px">Décochez un jour pour ne pas afficher la routine ce jour-là (repos).</p>
+    <div class="jours-actifs-ligne">
+      <span class="jours-actifs-label">☀️ Réveil</span>
+      <div class="jours-actifs-cases" id="jours-actifs-reveil"></div>
+    </div>
+    <div class="jours-actifs-ligne">
+      <span class="jours-actifs-label">🌙 Soir</span>
+      <div class="jours-actifs-cases" id="jours-actifs-soir"></div>
+    </div>
+  </div>
 
   <div class="section-titre">🎯 Mes types de séance <span class="section-titre-note">(5 max)</span></div>
   <div class="carte" style="padding:14px" id="liste-types-seance"></div>
