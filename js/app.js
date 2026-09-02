@@ -46,7 +46,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   chargerAnecdote();
   chargerMarches();
   scrollSelonHeure();
+  verifierMotivationAutomatique();
 });
+
+// ── Motivation automatique : 1 fois le matin, 1 fois le soir ────
+// (pas à chaque ouverture — juste la première fois sur chaque période)
+function verifierMotivationAutomatique() {
+  const heure = new Date().getHours();
+  const periode = heure < 18 ? 'matin' : 'soir';
+  const cleStockage = `almanach_motiv_${cleDuJour()}_${periode}`;
+
+  let dejaVu = false;
+  try { dejaVu = localStorage.getItem(cleStockage) === '1'; } catch (e) { /* localStorage indispo */ }
+  if (dejaVu) return;
+
+  setTimeout(() => {
+    const titre = document.getElementById('motivation-titre');
+    const contenu = document.getElementById('motivation-contenu');
+    titre.textContent = periode === 'matin' ? '☀️ Pour bien commencer la journée' : '🌙 Un dernier mot avant ce soir';
+    contenu.innerHTML = `<p class="motivation-fait">💡 ${bienfaitDuMoment(periode)}</p>`;
+    document.getElementById('modal-motivation').style.display = 'flex';
+    try { localStorage.setItem(cleStockage, '1'); } catch (e) { /* silencieux */ }
+  }, 600);
+}
 
 // ── Ouverture par défaut : en haut le matin, sur "Soir" le soir ──
 function scrollSelonHeure() {
@@ -71,6 +93,8 @@ async function chargerEtatDepuisFirestore() {
     suiviSerieActive:    CONFIG.suiviSerieActive,
     dateDebutProgramme:  cleDuJour(),
     recordGainage:       '',
+    joursActifsReveil:   { lundi:true, mardi:true, mercredi:true, jeudi:true, vendredi:true, samedi:true, dimanche:true },
+    joursActifsSoir:     { lundi:true, mardi:true, mercredi:true, jeudi:true, vendredi:true, samedi:true, dimanche:true },
   };
 
   if (!db) { Object.assign(ETAT, defaut); return; }
@@ -242,7 +266,28 @@ function formatGainage(sec) {
 }
 
 // ── Réveil / Soir ────────────────────────────────────────────
+function jourActifPourRoutine(cle, date = new Date()) {
+  const jourKey = JOURS_SEMAINE[date.getDay()];
+  const champ = cle === 'reveil' ? 'joursActifsReveil' : 'joursActifsSoir';
+  const table = ETAT[champ] || {};
+  return table[jourKey] !== false; // true par défaut si absent
+}
+
 function afficherRoutine(cle) {
+  const carte = document.getElementById(`carte-${cle}`);
+  const contenu = document.getElementById(`contenu-${cle}`);
+  const reposMsg = document.getElementById(`repos-msg-${cle}`);
+
+  if (!jourActifPourRoutine(cle)) {
+    contenu.style.display = 'none';
+    reposMsg.style.display = 'block';
+    carte.classList.remove('carte-clic-motivation');
+    return;
+  }
+  contenu.style.display = 'block';
+  reposMsg.style.display = 'none';
+  carte.classList.add('carte-clic-motivation');
+
   const palier = palierPourRoutine(cle);
   document.getElementById(`mois-badge-${cle}`).textContent = palier.manuel ? '✏️ Manuel' : `Mois ${palier.mois}`;
 
@@ -604,9 +649,33 @@ function ouvrirReglages() {
   afficherTypesSeance();
   afficherPlanningSemaine();
   afficherMenuPetitDejSemaine();
+  afficherJoursActifs();
   document.getElementById('toggle-intention').classList.toggle('on', ETAT.intentionDuJourActive);
   document.getElementById('toggle-serie').classList.toggle('on', ETAT.suiviSerieActive);
   document.getElementById('record-gainage').value = ETAT.recordGainage || '';
+}
+
+// ── Jours actifs Réveil / Soir ───────────────────────────────
+const ABREV_JOURS = { lundi:'L', mardi:'M', mercredi:'M', jeudi:'J', vendredi:'V', samedi:'S', dimanche:'D' };
+function afficherJoursActifs() {
+  const ordre = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+  ['reveil','soir'].forEach(cle => {
+    const champ = cle === 'reveil' ? 'joursActifsReveil' : 'joursActifsSoir';
+    const table = ETAT[champ] || {};
+    const zone = document.getElementById(`jours-actifs-${cle}`);
+    zone.innerHTML = ordre.map(j => `
+      <label class="jour-case-item">
+        <input type="checkbox" ${table[j] !== false ? 'checked' : ''}
+          onchange="toggleJourActif('${cle}', '${j}', this.checked)">
+        <span>${ABREV_JOURS[j]}</span>
+      </label>`).join('');
+  });
+}
+async function toggleJourActif(cle, jourKey, actif) {
+  const champ = cle === 'reveil' ? 'joursActifsReveil' : 'joursActifsSoir';
+  const table = { ...(ETAT[champ] || {}), [jourKey]: actif };
+  await sauverEtat({ [champ]: table });
+  afficherRoutine(cle);
 }
 
 function afficherMenuPetitDejSemaine() {

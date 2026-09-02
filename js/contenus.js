@@ -133,3 +133,29 @@ function formatMotivationDuJour() {
   const jourIdx = new Date().getDay(); // 0=dimanche ... 6=samedi
   return FORMATS_MOTIVATION[jourIdx];
 }
+
+// =============================================================
+// BIENFAITS DU SPORT — motivation automatique à l'ouverture
+// Apparaît une fois le matin, une fois le soir (pas à chaque ouverture)
+// =============================================================
+const BIENFAITS_SPORT = [
+  "20 minutes d'exercice aujourd'hui, c'est une meilleure humeur pour le reste de la journée : l'effort physique déclenche la libération d'endorphines, les hormones du bien-être.",
+  "Chaque séance renforce votre cœur, améliore votre circulation et réduit durablement le risque de maladies cardiovasculaires. Un petit effort aujourd'hui, un cœur plus solide pour des années.",
+  "Le sport régulier améliore la qualité du sommeil — et un bon sommeil, c'est plus d'énergie demain pour continuer sur cette lancée.",
+  "L'activité physique réduit le stress et l'anxiété presque immédiatement : quelques minutes suffisent à faire retomber la pression de la journée.",
+  "Bouger renforce vos muscles ET vos os. C'est un investissement qui protège votre autonomie et votre mobilité pour les décennies à venir.",
+  "La régularité compte plus que l'intensité. Une séance aujourd'hui, même courte, vaut mieux qu'une grosse séance que vous repoussez sans cesse.",
+  "L'exercice améliore la concentration et la clarté mentale pour plusieurs heures après l'effort — un vrai coup de boost avant une journée chargée.",
+  "Prendre soin de son corps aujourd'hui, c'est se donner les moyens d'être présent et en forme pour les gens qui comptent pour vous.",
+  "Le sport booste la confiance en soi : chaque séance terminée est une preuve concrète que vous tenez vos engagements envers vous-même.",
+  "Votre système immunitaire se renforce avec une activité physique régulière — un corps actif est un corps mieux armé.",
+  "Il n'y a pas de mauvaise séance : même un effort modeste aujourd'hui contribue à la routine qui, sur la durée, change vraiment les choses.",
+  "L'exercice physique stimule la production de nouvelles connexions neuronales : bouger le corps, c'est aussi entraîner l'esprit.",
+];
+
+function bienfaitDuMoment(periode) {
+  // periode = 'matin' ou 'soir' — rotation stable par jour, décalée entre les deux
+  const decalage = periode === 'soir' ? 1 : 0;
+  const idx = (jourDeLAnnee(new Date()) * 2 + decalage) % BIENFAITS_SPORT.length;
+  return BIENFAITS_SPORT[idx];
+}
