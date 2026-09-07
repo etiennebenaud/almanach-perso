@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   afficherRoutine('reveil');
   afficherRoutine('soir');
   afficherSeanceDuJour();
+  afficherCalisthenie();
   afficherPetitDej();
   afficherRappelSiPasFait();
   afficherBilanDimanche();
@@ -95,6 +96,9 @@ async function chargerEtatDepuisFirestore() {
     recordGainage:       '',
     joursActifsReveil:   { lundi:true, mardi:true, mercredi:true, jeudi:true, vendredi:true, samedi:true, dimanche:true },
     joursActifsSoir:     { lundi:true, mardi:true, mercredi:true, jeudi:true, vendredi:true, samedi:true, dimanche:true },
+    programmeCalisthenieActif:   false,
+    programmeCalisthenieJourActuel: 1,
+    programmeCalisthenieTermine: false,
   };
 
   if (!db) { Object.assign(ETAT, defaut); return; }
@@ -135,7 +139,7 @@ async function sauverEtat(champs) {
 }
 
 async function chargerJournalDuJour() {
-  ETAT.journalDuJour = { reveilFait: false, soirFait: false, seanceFaite: false, intentionTexte: '' };
+  ETAT.journalDuJour = { reveilFait: false, soirFait: false, seanceFaite: false, calisthenieFaite: false, intentionTexte: '' };
   if (!db) return;
   try {
     const snap = await db.collection('journal').doc(cleDuJour()).get();
@@ -650,6 +654,7 @@ function ouvrirReglages() {
   afficherPlanningSemaine();
   afficherMenuPetitDejSemaine();
   afficherJoursActifs();
+  afficherProgrammeCalisthenieReglages();
   document.getElementById('toggle-intention').classList.toggle('on', ETAT.intentionDuJourActive);
   document.getElementById('toggle-serie').classList.toggle('on', ETAT.suiviSerieActive);
   document.getElementById('record-gainage').value = ETAT.recordGainage || '';
@@ -1042,4 +1047,119 @@ function afficherVideoRoutine(cle) {
   }
   html += '</div>';
   zone.innerHTML = html;
+}
+
+// =============================================================
+// PROGRAMME DE CALISTHÉNIE — 30 jours, avance uniquement si validé
+// =============================================================
+function afficherCalisthenie() {
+  const zone = document.getElementById('zone-calisthenie');
+
+  if (!ETAT.programmeCalisthenieActif || ETAT.programmeCalisthenieTermine) {
+    zone.innerHTML = '';
+    return;
+  }
+
+  const jour = Math.min(ETAT.programmeCalisthenieJourActuel, 30);
+  const seance = PROGRAMME_CALISTHENIE[jour - 1];
+  const bloc = seance.bloc;
+  const video = VIDEOS_CALISTHENIE_PAR_BLOC[bloc];
+  const illustration = ILLUSTRATIONS_CALISTHENIE_PAR_BLOC[bloc];
+  const fait = ETAT.journalDuJour.calisthenieFaite;
+
+  zone.innerHTML = `
+    <div class="carte carte-calisthenie">
+      <div class="carte-eyebrow">
+        <span>🤸 Calisthénie — ${NOMS_BLOCS_CALISTHENIE[bloc]}</span>
+        <span class="calisthenie-jour-badge">Jour ${jour}/30</span>
+      </div>
+      <div class="calisthenie-contenu">
+        <div class="calisthenie-illustration">${illustration}</div>
+        <div>
+          <p style="font-family:'Fraunces',serif;font-weight:600;font-size:15px;margin:0 0 4px">${seance.theme}</p>
+          <ul class="calisthenie-liste">
+            ${seance.exercices.map(ex => `<li>${ex}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+      <a href="${video.url}" target="_blank" class="calisthenie-video-lien" onclick="event.stopPropagation()">
+        <span>▶️</span><span>${video.label}</span>
+      </a>
+      <button class="btn-fait sport" style="margin-top:10px" onclick="toggleCalistheFait()">
+        ${fait ? '✓ Séance faite' : '🔥 Marquer la séance comme faite'}
+      </button>
+    </div>`;
+}
+
+async function toggleCalistheFait() {
+  const etaitFait = ETAT.journalDuJour.calisthenieFaite;
+  await sauverJournalDuJour({ calisthenieFaite: !etaitFait });
+
+  if (!etaitFait) {
+    // Vient de passer à "fait" : on avance le programme d'un jour
+    if (ETAT.programmeCalisthenieJourActuel >= 30) {
+      await sauverEtat({ programmeCalisthenieTermine: true });
+      showToast('🎉 Programme de calisthénie terminé, bravo !', 'success');
+    } else {
+      await sauverEtat({ programmeCalisthenieJourActuel: ETAT.programmeCalisthenieJourActuel + 1 });
+    }
+  } else if (ETAT.programmeCalisthenieJourActuel > 1) {
+    // Annulation : on revient en arrière d'un jour
+    await sauverEtat({ programmeCalisthenieJourActuel: ETAT.programmeCalisthenieJourActuel - 1 });
+  }
+  afficherCalisthenie();
+}
+
+async function demarrerOuReprogrammerCalisthenie() {
+  if (ETAT.programmeCalisthenieActif && !ETAT.programmeCalisthenieTermine) {
+    if (!confirm('Reprogrammer le programme depuis le jour 1 ? La progression actuelle sera réinitialisée.')) return;
+  }
+  await sauverEtat({
+    programmeCalisthenieActif: true,
+    programmeCalisthenieJourActuel: 1,
+    programmeCalisthenieTermine: false,
+  });
+  await sauverJournalDuJour({ calisthenieFaite: false });
+  afficherProgrammeCalisthenieReglages();
+  afficherCalisthenie();
+  showToast('🤸 Programme de calisthénie démarré — jour 1/30 !', 'success');
+}
+
+function afficherProgrammeCalisthenieReglages() {
+  const zone = document.getElementById('zone-programme-calisthenie-reglages');
+  if (!zone) return;
+
+  if (ETAT.programmeCalisthenieTermine) {
+    zone.innerHTML = `
+      <p class="text-sm" style="margin-bottom:10px">🎉 Programme terminé — bravo pour ces 30 jours !</p>
+      <button class="btn-lien-large" onclick="demarrerOuReprogrammerCalisthenie()">🔄 Reprogrammer le programme</button>`;
+  } else if (ETAT.programmeCalisthenieActif) {
+    zone.innerHTML = `
+      <div class="programme-statut-ligne">
+        <span class="programme-statut-label">Progression actuelle</span>
+        <span class="programme-statut-valeur">Jour ${ETAT.programmeCalisthenieJourActuel}/30</span>
+      </div>
+      <button class="btn-lien-large" onclick="demarrerOuReprogrammerCalisthenie()">🔄 Reprogrammer depuis le début</button>`;
+  } else {
+    zone.innerHTML = `
+      <p class="text-sm" style="margin-bottom:10px">Un programme de calisthénie sur 30 jours (~15 min/jour), à faire le matin ou le soir selon vos envies.</p>
+      <button class="btn-lien-large" onclick="demarrerOuReprogrammerCalisthenie()">▶️ Démarrer le programme</button>`;
+  }
+}
+
+// ── Toast : petit message flottant temporaire ────────────────
+let toastTimeoutId = null;
+function showToast(message, type = '') {
+  let el = document.getElementById('toast-message');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast-message';
+    el.className = 'toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = message;
+  el.className = 'toast' + (type ? ' ' + (type === 'success' ? 'succes' : type === 'error' ? 'erreur' : type) : '');
+  requestAnimationFrame(() => el.classList.add('visible'));
+  if (toastTimeoutId) clearTimeout(toastTimeoutId);
+  toastTimeoutId = setTimeout(() => el.classList.remove('visible'), 3000);
 }
